@@ -23,7 +23,7 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
     - name: Upload to S3
-      uses:  dx-scale-approach-11/aws-s3-github-action@v1.0.0
+      uses: mannek43/dx-scale-approach-11@test
       with:
         args: --acl public-read --follow-symlinks --no-guess-mime-type --recursive --exclude '.git/*'
         local-dir: '.'
