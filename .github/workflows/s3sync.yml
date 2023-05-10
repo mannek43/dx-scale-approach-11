@@ -1,32 +1,37 @@
-name: Upload to S3
+name: S3 Upload
 
-on:
-  push:
-    branches:
-      - test
-
-env:
-  AWS_REGION: eu-west-1
-  S3_BUCKET_NAME: testinggithub
+on: 
+ push:
+   branches:
+         -test
 
 jobs:
   upload:
+    name: Use this action for check
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository test branch
-      uses: actions/checkout@v2
-         
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
-      uses: mannek43/dx-scale-approach-11@test
-      name: upload s3
-      id: s3
-      with:
-        args: --acl public-read --follow-symlinks --no-guess-mime-type --recursive --exclude '.git/*'
-        local-dir: '.'
-        bucket-name: ${{ env.S3_BUCKET_NAME }}
-
+      - name: Check out
+        uses: actions/checkout@v3
+      - name: Use this action
+        uses: ./
+        id: upload
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+          aws-bucket: ${{ secrets.AWS_BUCKET}}
+          file-path: ./README.md
+          # destination-dir:
+          # bucket-root:
+          output-file-url: true
+          # content-type:
+          output-qr-url: true
+          # qr-width:
+          # public:
+          # expire:
+      - name: Show result
+        if: always()
+        run: |
+          echo '${{ steps.upload.outputs.result }}'
+          echo '${{ steps.upload.outputs.file-url }}'
+          echo '${{ steps.upload.outputs.qr-url }}'
