@@ -14,10 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository test branch
-      id: checkout
       uses: actions/checkout@v2
-      with:
-        ref: test
          
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
