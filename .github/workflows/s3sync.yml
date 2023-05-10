@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository dx@scale branch
-        id: checkout
+      id: checkout
       uses: actions/checkout@v2
       with:
         ref: dx@scale
