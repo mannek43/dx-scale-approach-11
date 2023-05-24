@@ -2,7 +2,7 @@ name: Identify and upload deleted files to S3 bucket
 
 on: 
   push:
-    branches: dx@scale # Need to delete (changing main branch for testing)
+    branches: testbucket11 # Need to delete (changing main branch for testing)
 
 jobs:
   upload:
