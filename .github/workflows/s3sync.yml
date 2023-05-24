@@ -36,7 +36,7 @@ jobs:
           echo $GITHUB_SHA
           git show --pretty="format:" --name-only $GITHUB_SHA --diff-filter=D -1 > deletedfiles
           cat deletedfiles
-          BUCKET_NAME=testinggithub
+          BUCKET_NAME=testbucket11
           while read -r FILENAME; do
           aws s3 rm "s3://${BUCKET_NAME}/${FILENAME}"
           done < deletedfiles
