@@ -2,7 +2,7 @@ name: Identify and upload deleted files to S3 bucket
 
 on: 
   push:
-    branches: dx@scale # Need to delete (changing main branch for testing)
+    branches: ref11 # Need to delete (changing main branch for testing)
 
 jobs:
   upload:
@@ -13,14 +13,14 @@ jobs:
         id: checkout
         uses: actions/checkout@v3
         with:
-          ref: main
+          ref: ref11
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-west-1
+          aws-region: 'eu-west-1'
       - name: get the list of deleted files
         shell: bash
         run:  |
@@ -51,4 +51,4 @@ jobs:
             cd $GITHUB_WORKSPACE         
           done <deleted files
           cd  $GITHUB_WORKSPACE/moddir
-          aws s3 sync . s3://${{ secrets.AWS_STAGING_BUCKET }} --follow-symlinks   
+          aws s3 sync . s3://${{ secrets.S3_BUCKET_NAME }} --follow-symlinks   

@@ -2,18 +2,18 @@ name: Upload to staging S3 bucket
 
 on: 
   push:
-    branches: test # Need to modify (changing staging branch for testing)
+    branches: ref11 # Need to modify (changing staging branch for testing)
 
 jobs:
   upload:
     runs-on: ubuntu-latest
     steps:
 
-      - name: Checkout Repository staging Branch
+      - name: Checkout Repository ref11 Branch
         id: checkout
         uses: actions/checkout@v3
         with:
-          ref: staging
+          ref: ref11
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -53,7 +53,7 @@ jobs:
           done <modifiedfiles
 
           cd $GITHUB_WORKSPACE/moddir
-          aws s3 sync . s3://${{ secrets.AWS_STAGING_BUCKET }} --follow-symlinks          
+          aws s3 sync . s3://${{ secrets.S3_BUCKET_NAME }} --follow-symlinks          
 #         git_hash=$(git rev-parse --short "$GITHUB_SHA")
 #         aws s3 sync ./$uploadfile s3://${{ secrets.AWS_STAGING_BUCKET }} --follow-symlinks
 
