@@ -2,7 +2,7 @@ name: Identify and upload deleted files to S3 bucket
 
 on: 
   push:
-    branches: ref11 # Need to delete (changing main branch for testing)
+    branches: ref11 # Need to delete those files(changing main branch for testing)
 
 jobs:
   upload:
