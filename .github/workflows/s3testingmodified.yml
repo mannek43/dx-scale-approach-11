@@ -2,18 +2,18 @@ name: Sync staging S3 bucket
 
 on:
   push:
-    branches: testing11 # Need to modify (changing staging branch for testing)
+    branches: ref11 # Need to modify (changing staging branch for testing)
 
 jobs:
   upload:
     runs-on: ubuntu-latest
     steps:
 
-      - name: Checkout Repository staging Branch
+      - name: Checkout Repository ref11 Branch
         id: checkout
         uses: actions/checkout@v2
         with:
-          ref: staging
+          ref: ref11
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -25,7 +25,7 @@ jobs:
         uses: badsyntax/github-action-aws-s3@v1.0.2
         id: synced-files
         with: 
-          bucket: ${{ secrets.AWS_STAGING_BUCKET }}
+          bucket: ${{ secrets.S3_BUCKET_NAME }}
           aws-region: 'eu-west-1'
           action: 'sync'
           src-dir: './*'
