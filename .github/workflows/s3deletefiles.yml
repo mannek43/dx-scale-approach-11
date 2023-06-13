@@ -2,7 +2,7 @@ name: upload delete files in s3bucket
 
 on: 
   push:
-    branches: ref11 # Need to delete (changing main branch for testing)
+    branches: ref22 # Need to delete (changing main branch for testing)
 
 jobs:
   upload:
