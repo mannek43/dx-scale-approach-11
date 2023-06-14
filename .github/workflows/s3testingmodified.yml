@@ -2,7 +2,7 @@ name: Sync staging S3 bucket
 
 on:
   push:
-    branches: ref11 # Need to modify (changing staging branch for testing)
+    branches: ref111 # Need to modify (changing staging branch for testing)
 
 jobs:
   upload:

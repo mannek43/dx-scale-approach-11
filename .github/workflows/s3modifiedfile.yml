@@ -2,7 +2,7 @@ name: testing modified files
 
 on: 
   push:
-    branches: ref22 # Need to modify (changing staging branch for testing)
+    branches: ref11 # Need to modify (changing staging branch for testing)
 
 jobs:
   upload:
@@ -12,9 +12,7 @@ jobs:
       - name: Checkout Repository ref11 Branch
         id: checkout
         uses: actions/checkout@v3
-        with:
-          ref: ref11
-
+        
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
