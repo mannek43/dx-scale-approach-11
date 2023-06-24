@@ -3,8 +3,8 @@ name: Delete from S3 Bucket
 on:
   push:
     branches:
-      - ref11
-      - ref22
+      - branch1
+      - branch2
 
 jobs:
   delete:
@@ -21,18 +21,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
 
-      - name: List files in S3 bucket
-        id: list_files
-        run: |
-          aws s3 ls s3://$AWS_S3_BUCKET --recursive | awk '{ print $4 }' > files.txt
-
       - name: Delete files from S3
         run: |
-          while IFS= read -r file; do
-            aws s3 rm s3://$AWS_S3_BUCKET/"$file"
-          done < files.txt
+          if [[ ${{ github.ref }} == 'refs/heads/ref11' ]]; then
+            aws s3 rm s3://bucket1/path/to/files --recursive --exclude "*" --include "*.txt"
+          elif [[ ${{ github.ref }} == 'refs/heads/ref22' ]]; then
+            aws s3 rm s3://bucket2/path/to/files --recursive --exclude "*" --include "*.csv"
+          fi
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: your-s3-region
-          AWS_S3_BUCKET: ${{ github.ref == 'refs/heads/ref11' && 'bucket1' || github.ref == 'refs/heads/ref22' && 'bucket2' }}
