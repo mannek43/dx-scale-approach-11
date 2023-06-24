@@ -1,0 +1,38 @@
+name: Delete from S3 Bucket
+
+on:
+  push:
+    branches:
+      - ref11
+      - ref22
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: your-s3-region
+
+      - name: List files in S3 bucket
+        id: list_files
+        run: |
+          aws s3 ls s3://$AWS_S3_BUCKET --recursive | awk '{ print $4 }' > files.txt
+
+      - name: Delete files from S3
+        run: |
+          while IFS= read -r file; do
+            aws s3 rm s3://$AWS_S3_BUCKET/"$file"
+          done < files.txt
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: your-s3-region
+          AWS_S3_BUCKET: ${{ github.ref == 'refs/heads/ref11' && 'bucket1' || github.ref == 'refs/heads/ref22' && 'bucket2' }}
