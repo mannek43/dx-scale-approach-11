@@ -51,7 +51,7 @@ jobs:
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git fetch
           echo $GITHUB_SHA
-          git show --pretty="format:" --name-only $GITHUB_SHA --diff-filter=D -1 > deletedfiles
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} --diff-filter=D > deletedfiles
           cat deletedfiles
           if [[ "${{ github.ref }}" == "refs/heads/ref11" ]]; then
             BUCKET_NAME=testbucket240523
