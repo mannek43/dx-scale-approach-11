@@ -1,0 +1,44 @@
+name: Modified files upload to s3 bucket
+
+on:
+  push:
+    branches:
+      - ref11
+      - Production
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: List modified files
+        id: file_changes
+        run: |
+          echo "::set-output name=modified_files::$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})"
+
+      - name: Upload to S3
+        run: |
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} > modifiedfiles
+          cat modifiedfiles
+          while IFS= read -r line; do
+            if [[ ! $line =~ \.github ]]; then
+              aws s3 cp "$line" s3://$testbucket240523/"$line"
+            fi
+          done < modifiedfiles
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: eu-west-1
+          AWS_S3_BUCKET: ${{ github.ref == 'refs/heads/ref11' && 'testbucket240523' || github.ref == 'refs/heads/Production' && 'production-help.sage50.na.sage.com' }}
