@@ -42,3 +42,18 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
           AWS_S3_BUCKET: ${{ github.ref == 'refs/heads/ref11' && 'testbucket240523' || github.ref == 'refs/heads/Production' && 'production-help.sage50.na.sage.com' }}
+
+      - name: get the list of deleted files
+        shell: bash
+        run: |
+          pwd
+          ls
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git fetch
+          echo $GITHUB_SHA
+          git show --pretty="format:" --name-only $GITHUB_SHA --diff-filter=D -1 > deletedfiles
+          cat deletedfiles
+          BUCKET_NAME=testbucket240523
+          while read -r FILENAME; do
+          aws s3 rm "s3://${BUCKET_NAME}/${FILENAME}"
+          done < deletedfiles          
