@@ -4,7 +4,7 @@
 
 
 
-The following 3rd-party software packages may be used by or distributed with **sfpowerscripts**.  Any information relevant to third-party vendors listed below are collected using common, reasonable means.
+The following 3rd-party softfadgvzdbvware packages may be used by or distributed with **sfpowerscripts**.  Any information relevant to third-party vendors listed below are collected using common, reasonable means.
 
 
 Date generated | Revision ID

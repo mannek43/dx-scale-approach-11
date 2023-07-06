@@ -34,7 +34,7 @@ jobs:
           cat modifiedfiles
           while IFS= read -r line; do
             if [[ ! $line =~ \.github ]]; then
-              aws s3 cp "$line" s3://$testbucket240523/"$line"
+              aws s3 cp "$line" s3://testbucket240523/"$line"
             fi
           done < modifiedfiles
         env:
