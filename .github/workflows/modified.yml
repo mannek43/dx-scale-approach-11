@@ -26,11 +26,11 @@ jobs:
       - name: List modified files
         id: file_changes
         run: |
-          echo "::set-output name=modified_files::$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})"
+          echo "::set-output name=modified_files::$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} --diff-filter=d)"
 
       - name: Upload to S3
         run: |
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }} > modifiedfiles
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} --diff-filter=d > modifiedfiles
           cat modifiedfiles
           while IFS= read -r line; do
             if [[ ! $line =~ \.github ]]; then
