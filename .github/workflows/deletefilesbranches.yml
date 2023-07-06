@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -21,14 +23,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
 
-      - name: Delete files from S3
+      - name: get the list of deleted files
+        shell: bash
         run: |
-          if [[ ${{ github.ref }} == 'refs/heads/ref11' ]]; then
-            aws s3 rm s3://testbucket240523/path/to/files --recursive --exclude "*" --include "*.txt"
-          elif [[ ${{ github.ref }} == 'refs/heads/ref22' ]]; then
-            aws s3 rm s3://bucket2/path/to/files --recursive --exclude "*" --include "*.csv"
-          fi
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: your-s3-region
+          pwd
+          ls
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git fetch
+          echo $GITHUB_SHA
+          git show --pretty="format:" --name-only $GITHUB_SHA --diff-filter=D -1 > deletedfiles
+          cat deletedfiles
+          BUCKET_NAME=testbucket240523
+          while read -r FILENAME; do
+          aws s3 rm "s3://${BUCKET_NAME}/${FILENAME}"
+          done < deletedfiles
