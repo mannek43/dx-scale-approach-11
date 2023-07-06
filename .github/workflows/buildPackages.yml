@@ -1,66 +1,56 @@
-# This pipeline is used as template to build the sfpowerscripts plugin
-
-
-name: 'Build Packages'
+name: Upload to S3
 
 on:
-  workflow_call:
-    inputs:
-      version:
-        type: string
-        default: ''
-      publish:
-        type: boolean
-        default: false
-      environment:
-        type: string
-        required: true
-    secrets:
-      npm-token:
-        required: false
+  push:
+    branches:
+      - ref11
+      - production
 
 jobs:
-  build:
-    name: 'build packages'
+  upload:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          fetch-depth: 0
+          python-version: 3.x
 
-      - uses: actions/setup-node@v2
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          node-version: '16'
-          registry-url: https://registry.npmjs.org/
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
 
-      - name: 'Set Git Config'
+      - name: Determine modified and deleted files
+        id: diff
         run: |
-          git config --global user.email "ciuser@dxatscale.io"
-          git config --global user.name "ciuser"
+          git fetch --no-tags --prune --depth=1 origin "+refs/heads/main:refs/remotes/origin/main"
+          MODIFIED_FILES=$(git diff --name-only origin/main...$GITHUB_REF)
+          DELETED_FILES=$(git diff --name-only --diff-filter=D origin/main...$GITHUB_REF)
 
-
-      - name: 'Bootstrap Lerna'
-        run: npx lerna bootstrap
-
-
-      - name: 'Build  All  Packages'
+      - name: Upload modified files to S3
+        if: ${{ steps.diff.outputs.MODIFIED_FILES != '' }}
         run: |
-          npx lerna run build
-          npx lerna run manifest
+          for file in ${{ steps.diff.outputs.MODIFIED_FILES.split('\n') }}; do
+            if [[ "${{ github.ref }}" == "refs/heads/ref11" ]]; then
+              aws s3 cp $file s3://testbucket240523/$file
+            elif [[ "${{ github.ref }}" == "refs/heads/ref22" ]]; then
+              aws s3 cp $file s3://testbucket240523/$file
+            fi
+          done
 
-
-
-      - name: 'Run Unit Tests'
-        if: ${{ inputs.publish == true }}
-        run: npx lerna run test -- --colors
-
-      - name: Upload to Codecov
-        uses: codecov/codecov-action@v1
-
-      - name: 'Publish CLI/Core'
-        if: ${{ inputs.publish == true }}
-        run: 'npx lerna publish from-package --yes --dist-tag ${{ inputs.version }}'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.npm-token }}
-
+      - name: Delete deleted files from S3
+        if: ${{ steps.diff.outputs.DELETED_FILES != '' }}
+        run: |
+          for file in ${{ steps.diff.outputs.DELETED_FILES.split('\n') }}; do
+            if [[ "${{ github.ref }}" == "refs/heads/ref11" ]]; then
+              aws s3 rm s3://testbucket240523/$file
+            elif [[ "${{ github.ref }}" == "refs/heads/ref22" ]]; then
+              aws s3 rm s3://testbucket240523/$file
+            fi
+          done
