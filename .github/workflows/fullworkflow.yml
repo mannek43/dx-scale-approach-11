@@ -1,4 +1,4 @@
-name: Modified files upload to s3 bucket
+name: Modified and deleeted files upload to s3 bucket
 
 on:
   push:
@@ -53,7 +53,13 @@ jobs:
           echo $GITHUB_SHA
           git show --pretty="format:" --name-only $GITHUB_SHA --diff-filter=D -1 > deletedfiles
           cat deletedfiles
-          BUCKET_NAME=testbucket240523
+          if [[ "${{ github.ref }}" == "refs/heads/ref11" ]]; then
+            BUCKET_NAME=testbucket240523
+          elif [[ "${{ github.ref }}" == "refs/heads/production" ]]; then
+            BUCKET_NAME=production-bucket-name
+          else
+            echo "Invalid branch"
+          fi
           while read -r FILENAME; do
           aws s3 rm "s3://${BUCKET_NAME}/${FILENAME}"
           done < deletedfiles          
