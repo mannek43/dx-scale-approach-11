@@ -24,7 +24,7 @@ jobs:
       - name: Delete files from S3
         run: |
           if [[ ${{ github.ref }} == 'refs/heads/ref11' ]]; then
-            aws s3 rm s3://bucket1/path/to/files --recursive --exclude "*" --include "*.txt"
+            aws s3 rm s3://testbucket240523/path/to/files --recursive --exclude "*" --include "*.txt"
           elif [[ ${{ github.ref }} == 'refs/heads/ref22' ]]; then
             aws s3 rm s3://bucket2/path/to/files --recursive --exclude "*" --include "*.csv"
           fi
