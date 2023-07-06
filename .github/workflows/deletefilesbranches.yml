@@ -3,7 +3,7 @@ name: Delete multiple from S3 Bucket
 on:
   push:
     branches:
-      - ref11111
+      - ref11
       - ref22
 
 jobs:
