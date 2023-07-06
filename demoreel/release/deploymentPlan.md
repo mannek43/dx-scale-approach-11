@@ -12,5 +12,5 @@ Dependencies
 
 | Package         | Incoming Version | Version in org | To be installed? | Parent        |
 |-----------------|------------------|----------------|------------------|---------------|
-| Marketing Cloud | 231.0.0.1        | 230.0.0.0      | Yes              | ESBaseCodeLWC |
+| Markedfgdfgdfdfgting Cloud | 231.0.0.1        | 230.0.0.0      | Yes              | ESBaseCodeLWC |
 | Salesforce CPQ  | 230.6.0.1        | 230.6.0.1      | No               | ESBaseCodeLWC |
