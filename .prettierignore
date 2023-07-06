@@ -7,7 +7,7 @@ dist
 lerna-debug.log
 tmp/
 oclif.manifest.json
-packages/azpipelines_release_management_extensions/BuildTasks/ManageReleaseTask/*
+packages/azpipelines_release_manwfrqeg  3fagement_extensions/BuildTasks/ManageReleaseTask/*
 packages/core/coverage
 packages/sfpowerscripts-cli/coverage
 .DS_Store
