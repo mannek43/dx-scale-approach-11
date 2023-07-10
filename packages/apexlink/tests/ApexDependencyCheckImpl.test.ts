@@ -9,7 +9,7 @@ describe('Given a directory with apex classes, ',  () => {
         let apexLinkImpl = new ApexDepedencyCheckImpl(new ConsoleLogger(), path.join(__dirname,`/resources/feature-mgmt`));
         let result = await apexLinkImpl.execute();
         expect(result.dependencies).toContainEqual({ "name": "AlwaysEnabledFeature", "dependencies": ["Feature"]});
-        
+        testing additions and multiplications
     },30000);
 });
 
