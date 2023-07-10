@@ -3,8 +3,8 @@ name: Modified and deleeted files upload to s3 bucket
 on:
   push:
     branches:
-      - ref11
-      - production
+      - ref11444
+      - production4444
 
 jobs:
   upload:
