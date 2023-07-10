@@ -1,0 +1,105 @@
+name: approval
+
+on:
+  push:
+    branches:
+      - ref11
+      - production
+
+jobs:
+  upload_modified_files:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: List modified files
+        id: modified_files
+        run: |
+          echo "::set-output name=modified_files::$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} --diff-filter=d)"
+
+      - name: Upload modified files to S3
+        run: |
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} --diff-filter=d > modifiedfiles
+          cat modifiedfiles
+          while IFS= read -r line; do
+            if [[ ! $line =~ \.github ]]; then
+              aws s3 cp "$line" s3://$AWS_S3_BUCKET/"$line"
+            fi
+          done < modifiedfiles
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: eu-west-1
+          AWS_S3_BUCKET: ${{ github.ref == 'refs/heads/ref11' && 'testbucket240523' || github.ref == 'refs/heads/production' && 'rbk' }}
+
+  delete_files:
+    needs: [upload_modified_files]
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.event == 'APPROVE' && needs.upload_modified_files.outputs.modified_files != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Get the list of deleted files
+        run: |
+          git diff --name-only ${{ github.event.workflow_run.head_commit_id }} ${{ github.event.workflow_run.pull_requests[0].head.sha }} --diff-filter=D > deletedfiles
+          cat deletedfiles
+          
+      - name: Delete files from S3
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/ref11" ]]; then
+            BUCKET_NAME=testbucket240523
+          elif [[ "${{ github.ref }}" == "refs/heads/production" ]]; then
+            BUCKET_NAME=rbk
+          else
+            echo "Invalid branch"
+            exit 1
+          fi
+          while read -r FILENAME; do
+            aws s3 rm "s3://${BUCKET_NAME}/${FILENAME}"
+          done < deletedfiles
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: eu-west-1
+
+  manual_approval:
+    needs: [upload_modified_files]
+    if: needs.upload_modified_files.outputs.modified_files != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request approval
+        id: approval
+        uses: repo/approvals@v1
+        with:
+          permissions: read
+          assignees: your-username
+
+  deploy:
+    needs: [delete_files, manual_approval]
+    if: needs.delete_files.outputs.result == 'success' && needs.manual_approval.outputs.approved == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to production
+        run: |
+          # Your deployment commands here
+          echo "Deploying to production..."
