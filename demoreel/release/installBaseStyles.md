@@ -15,4 +15,4 @@ The following metadata will be deployed:
 | LightningComponentBundle | pill                   |
 | LightningComponentBundle | pillList               |
 
-Generated Command sfdx force:package:install --package 04t2s000000cC1NAAU -u SIT --noprompt --publishwait=10 --wait=120 --securitytype=AdminsOnly --upgradetype=Mixed --apexcompile=package
+Generated Command sfdx force:package:install --package 04t2s000000cC1NAAU -u SIT --noprompt --publishwait=10 --wait=120 --securitytype=AdminsOnly --upgradetypesjagyaw   gaeytrgiua kuas7u dasg f97=Mixed --apexcompile=package
