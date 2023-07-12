@@ -1,4 +1,4 @@
-name: Modified and Deleted Files two jobs
+name: Modified and Deleted Files jobs
 
 on:
   push:
