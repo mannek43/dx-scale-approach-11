@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [upload_modified_files]
     environment:
-      name: deleted_files 
+      name: delete_files
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
