@@ -45,6 +45,8 @@ jobs:
   UAT:
     runs-on: ubuntu-latest
     needs: [SIT]
+    environment:
+      name: UAT 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
