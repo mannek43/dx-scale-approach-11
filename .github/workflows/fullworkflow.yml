@@ -1,4 +1,4 @@
-name: Modified and Deleted Files job
+name: Modified and Deleted Files job and if
 
 on:
   push:
