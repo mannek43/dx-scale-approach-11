@@ -7,7 +7,7 @@ on:
       - production
 
 jobs:
-  upload modified_files:
+ upload modified_files:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
