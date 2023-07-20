@@ -1,66 +1,50 @@
-# This pipeline is used as template to build the sfpowerscripts plugin
-
-
-name: 'Build Packages'
+name: 'Full CI/CD Workflow'
 
 on:
-  workflow_call:
-    inputs:
-      version:
-        type: string
-        default: ''
-      publish:
-        type: boolean
-        default: false
-      environment:
-        type: string
-        required: true
-    secrets:
-      npm-token:
-        required: false
+  workflow_run:
+    workflows:
+      - 's3modifiedfile.yml'
+    types: 
+      - completed
+
+#Set the environment variables for tracking metrics
+env:
+  #SFPOWERSCRIPTS_SPLUNK: 'true'
+  #SFPOWERSCRIPTS_SPLUNK_HOST: '${{ secrets.SPLUNK_HOST }}'
+  #SFPOWERSCRIPTS_SPLUNK_API_KEY : '${{ secrets.SPLUNK_INSIGHT_INSERT_KEYS }}'
+  SFPOWERSCRIPTS_NEWRELIC: 'true'
+  SFPOWERSCRIPTS_NEWRELIC_API_KEY: '${{ secrets.NEWRELIC_INSIGHT_INSERT_KEYS }}'
+  #SFPOWERSCRIPTS_DATADOG: 'true'
+  #SFPOWERSCRIPTS_DATADOG_HOST: '${{ secrets.DATADOG_HOST }}'
+  #SFPOWERSCRIPTS_DATADOG_API_KEY: '${{ secrets.DATADOG_API_KEY }}'
 
 jobs:
-  build:
-    name: 'build packages'
+  SIT:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    #container: ghcr.io/dxatscale/sfpowerscripts
+    container: ghcr.io/dxatscale/sfpowerscripts
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} 
+    environment:
+      name: SIT
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+   
+      - name: Authenticate to SIT sandbox
+        run: |
+          echo "${{ secrets.SIT_SFDX_AUTH_URL }}" > ./authfile
+          sfdx auth:sfdxurl:store -f ./authfile -a sit
 
-      - uses: actions/setup-node@v2
+      # Authenticate to npm
+      - uses: actions/setup-node@v3
         with:
-          node-version: '16'
-          registry-url: https://registry.npmjs.org/
+         registry-url: 'https://npm.pkg.github.com'
 
-      - name: 'Set Git Config'
-        run: |
-          git config --global user.email "ciuser@dxatscale.io"
-          git config --global user.name "ciuser"
-
-
-      - name: 'Bootstrap Lerna'
-        run: npx lerna bootstrap
-
-
-      - name: 'Build  All  Packages'
-        run: |
-          npx lerna run build
-          npx lerna run manifest
-
-
-
-      - name: 'Run Unit Tests'
-        if: ${{ inputs.publish == true }}
-        run: npx lerna run test -- --colors
-
-      - name: Upload to Codecov
-        uses: codecov/codecov-action@v1
-
-      - name: 'Publish CLI/Core'
-        if: ${{ inputs.publish == true }}
-        run: 'npx lerna publish from-package --yes --dist-tag ${{ inputs.version }}'
+      # Release to environment
+      - name: 'Release to SIT'
+        run: 'sfp orchestrator:release -u sit -p ./release-definitions/release-sit.yml  --npm --scope ${{ github.repository_owner }} --generatechangelog --branchname changelog -g "::group::,::endgroup::" --loglevel=${{ vars.DX_LOGLEVEL_VALUE }}'
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.npm-token }}
+         NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
