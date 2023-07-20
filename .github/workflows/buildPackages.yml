@@ -3,7 +3,7 @@ name: 'Full CI/CD Workflow'
 on:
   workflow_run:
     workflows:
-      - 's3modifiedfile.yml'
+      - 'upload to staging s3 bucket'
     types: 
       - completed
 
