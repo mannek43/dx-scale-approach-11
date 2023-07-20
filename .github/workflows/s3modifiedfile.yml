@@ -2,7 +2,7 @@ name: Upload to staging S3 bucket
 
 on: 
   push:
-    branches: test # Need to modify (changing staging branch for testing)
+    branches: sit # Need to modify (changing staging branch for testing)
 
 jobs:
   upload:
