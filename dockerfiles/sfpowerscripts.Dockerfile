@@ -10,7 +10,7 @@ ARG SFPOWERSCRIPTS_VERSION=alpha
 ARG GIT_COMMIT
 
 # update git & common packages
-# Install all shared dependencies for chrome and fonts to support major charsets (Chinese, Japanese, Arabic, Hebrew, Thai and a few others)
+# Install all shared  to get to know the chnages and how it works dependencies for chrome and fonts to support major charsets (Chinese, Japanese, Arabic, Hebrew, Thai and a few others)
 # Note: this installs the necessary libs to make the bundled version of Chromium that Puppeteer
 # installs, work.
 RUN apt-get update && apt-get install -qq software-properties-common \
